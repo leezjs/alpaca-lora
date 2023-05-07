@@ -3,8 +3,6 @@ from langchain.llms import HuggingFacePipeline
 from langchain import PromptTemplate, LLMChain
 from peft import PeftModel
 
-import torch
-
 tokenizer = LlamaTokenizer.from_pretrained("decapoda-research/llama-7b-hf")
 
 model = LlamaForCausalLM.from_pretrained(
@@ -12,6 +10,8 @@ model = LlamaForCausalLM.from_pretrained(
     load_in_8bit=True,
     device_map='auto',
 )
+
+# load PEFT checkpoint
 base_model = PeftModel.from_pretrained(model, "./lora-alpaca")
 
 pipe = pipeline(
@@ -27,18 +27,6 @@ pipe = pipeline(
 local_llm = HuggingFacePipeline(pipeline=pipe)
 
 from langchain import PromptTemplate, LLMChain
-
-template = """Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
-### Instruction: 
-{instruction}
-
-Answer:"""
-
-prompt = PromptTemplate(template=template, input_variables=["instruction"])
-
-question = "What are alpacas? and how are they different from llamas?"
-
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 
